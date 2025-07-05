@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../dist/uploads.js"></script>
+</head>
+
+<style>
+    fp-upload-drop {
+        background-color: #d8f1f2;
+        --upload-border-width: 1px;
+        --upload-border-style: dashed;
+        --upload-border-radius: 10px;
+        --upload-border-color: #193039;
+        --overlay-text-color: #08486d;
+        --overlay-text-font-size: 48px;
+        --uploader-overlay-background-color: #c7d2d6;
+        --uploader-progress-fill-color: #237487;
+        margin-top: 20px;
+    }
+
+    .uploadMonitor {
+        --uploader-progress-fill-color: #237487;
+    }
+
+    .fp-upload {
+        --uploader-progress-fill-color: #ceb40e;
+        --uploader-progress-bar-height: 10px;
+        --uploader-progress-bar-backgroundcolor: #0f0f0f;
+        --upload-border-width: 2px;
+        --upload-border-style: solid;
+        --upload-border-radius: 20px;
+        --upload-border-color: #555;
+        background-color: #d8f1f2;
+        margin-top: 20px;
+        height: 300px;
+    }
+
+    .uploadButton {
+        padding: 20px 24px;
+        background-color: #217a7d;
+        color: #FFF;
+        border: 0px;
+        border-radius: 15px;
+        cursor: pointer;
+    }
+
+    .upload-component {
+        display: none;
+    }
+
+    .withoutUpload {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        margin-top: 40px;
+    }
+
+    .upload-button {
+        background: #7eafb8;
+        color: white;
+        border-radius: .35em;
+        border: 0;
+        cursor: pointer;
+        height: 50px;
+        width: 220px;
+    }
+
+    .progress-status {
+        color: cadetblue;
+        font-size: medium;
+        font-weight: 600;
+        text-decoration: underline;
+    }
+
+    .drop-heading {
+        color: #2c383c;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .drop-separator {
+        color: #2c383c;
+        font-size: 16px;
+        font-weight: 400;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<body>
+    <fp-upload endpoint="" chunk-size="16384" class="fp-upload" id="fpUploads1" retry-chunk-attempt="5">
+        <button class="upload-button" slot="upload-file-button">Upload Video</button>
+    </fp-upload>
+
+    <div style="display: flex;flex-direction: row;width: 400px; row-gap: 20px;">
+        <button id="pauseButton">pause</button>
+        <button id="resumeButton">resume</button>
+    </div>
+
+    <!-- <fp-upload style="display: none;" disable-retry endpoint="" chunk-size="512000" class="fp-upload" id="webUploads"
+        retry-chunk-attempt="3">
+        <button class="upload-button" slot="upload-file-button">Upload Video</button>
+    </fp-upload>
+
+    <button id="abortBtn">Abort</button>
+    <button id="RetryBtn">Retry</button>
+    <button id="pauseButton">pause</button>
+    <button id="resumeButton">Resume</button> -->
+
+    <!-- <fp-upload endpoint="" class="fp-upload" id="fpUploads2" retry-chunk-attempt="3"></fp-upload>
+        <button class="upload-button" slot="upload-file-button">Select your file 2</button>
+    </fp-upload>
+
+    <fp-upload endpoint="" class="fp-upload" id="fpUploads3" retry-chunk-attempt="3"></fp-upload>
+        <button class="upload-button" slot="upload-file-button">Select your file 3</button>
+    </fp-upload> -->
+
+    <!-- <fp-upload-drop overlay-text="Drop your file here" class="fp-upload-drop" fp-upload="fpUploads1">
+        <span slot="heading" style="margin-bottom: 20px;font-size: 28px">Drag and File to Upload</span>
+        <span slot="separator" style="margin-bottom: 20px;">----- or -----</span>
+        <fp-upload-status style="margin-bottom: 10px;" fp-upload="fpUploads1"></fp-upload-status>
+        <fp-upload-monitor style="color: #237487;" progress-type="progress-status"
+            fp-upload="fpUploads1"></fp-upload-monitor>
+        <fp-upload-monitor fp-upload="fpUploads1"></fp-upload-monitor>
+        <fp-upload-file-select fp-upload="fpUploads1">
+            <button class="upload-button" slot="upload-file-button">Select your file 1</button>
+        </fp-upload-file-select>
+        <fp-upload-retry style="margin-top: 10px;" fp-upload="fpUploads1"></fp-upload-retry>
+    </fp-upload-drop>
+
+    <div style="margin-top: 20px;">
+        <fp-upload-file-select fp-upload="webUploads">
+            <button class="uploadButton" slot="upload-file-button">upload video</button>
+        </fp-upload-file-select>
+        <fp-upload-status fp-upload="webUploads"></fp-upload-status>
+        <fp-upload-monitor progress-type="progress-status" fp-upload="webUploads"></fp-upload-monitor>
+        <fp-upload-monitor fp-upload="webUploads"></fp-upload-monitor>
+    </div> -->
+
+    <!-- <div class="withoutUpload">
+        <fp-upload-file-select fp-upload="fpUploads1">
+            <button class="upload-button" slot="upload-file-button">Select your file 1</button>
+        </fp-upload-file-select>
+    </div> -->
+
+    <script>
+        const uploads1 = document.getElementById("fpUploads1")
+        const uploads2 = document.getElementById("webUploads")
+        const uploads3 = document.getElementById("resumableUploads")
+        const pauseBtn = document.getElementById("pauseButton")
+        const resBtn = document.getElementById("resumeButton")
+        const abortBtn = document.getElementById("abortBtn");
+        const retryBtn = document.getElementById("RetryBtn");
+
+        pauseBtn.addEventListener('click', () => {
+            if (uploads1 && typeof uploads1.pause === 'function') {
+                uploads1.pause();
+                console.log('Upload paused');
+            }
+        });
+
+        resBtn.addEventListener('click', () => {
+            if (uploads1 && typeof uploads1.resume === 'function') {
+                uploads1.resume();
+                console.log('Upload resumed');
+            }
+        });
+
+
+
+        const getSignedUrl = async (uploads) => {
+            const accessTokenId = '9a7b69f0-ddf7-403d-b4f6-cc0447c84822';
+            const secretKey = '9fb60b77-9da4-4bf4-b4bb-610a7dbe69c3';
+            const url = 'https://venus-v1.fastpix.dev/v1/on-demand/upload';
+            const requestData = {
+                corsOrigin: "*",
+                pushMediaSettings: {
+                    accessPolicy: "public",
+                    createSubtitles: {
+                        name: "name",
+                        metadata: {
+                            key1: "value1"
+                        },
+                        languageCode: "en-us"
+                    },
+                    optimizeAudio: true,
+                    maxResolution: "1080p"
+                }
+            };
+
+            const encodedCredentials = btoa(`${accessTokenId}:${secretKey}`);
+
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Basic ${encodedCredentials}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data?.success) {
+                        console.log(data?.data?.url);
+
+                        uploads.setAttribute('endpoint', data.data.url);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        };
+
+        getSignedUrl(uploads1)
+    </script>
+</body>
+
+</html>

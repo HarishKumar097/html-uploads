@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>File Upload with Progress Bar</title>
+
+
+
+    <!-- Import FastPix Uploader library from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/gcp-res-upload@latest/dist/uploads.js"></script>
+
+</head>
+
+
+
+<body>
+
+    <style>
+        .container {
+
+            width: 100%;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: center;
+
+            margin-top: 50px;
+
+        }
+
+
+
+        .progress-bar-container {
+
+            width: 100%;
+
+            background-color: #eee;
+
+            border-radius: 20px;
+
+            height: 10px;
+
+            margin-top: 20px;
+
+        }
+
+
+
+        .progress-bar {
+
+            height: 100%;
+
+            width: 0;
+
+            background-color: #0f0f0f;
+
+            border-radius: 100px;
+
+            transition: width 0.2s ease;
+
+        }
+    </style>
+
+
+
+    <div class="container">
+
+        <h1>FastPix Uploads</h1>
+
+
+
+        <!-- File input to select video for upload -->
+
+        <input id="videoFile" type="file" />
+
+
+
+        <!-- Progress indicator text -->
+
+        <p id="progressIndicator"></p>
+
+
+
+        <!-- Visual representation of upload progress -->
+
+        <div class="progress-bar-container">
+
+            <div class="progress-bar" id="progressBar"></div>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+        const videoFile = document.getElementById("videoFile");
+
+        const progressBar = document.getElementById("progressBar");
+
+        const progressIndicator = document.getElementById("progressIndicator")
+
+
+
+        // Initialize progress bar and indicator to 0 
+
+        progressBar.style.width = '0%';
+
+        progressIndicator.innerText = '0%'
+
+
+
+        // Triggered when a file is selected 
+
+        videoFile.onchange = async (event) => {
+
+            const fileObject = event?.target?.files[0];
+
+
+
+            if (fileObject) {
+
+                try {
+
+
+
+                    // API details to get signed URL for upload 
+
+                    const url = "https://venus-v1.fastpix.dev/on-demand/upload";
+
+                    const accessTokenId = 'a2fb727c-ea5b-4af8-8c14-873cefa809a6';
+                    const secretKey = 'e0afd2b4-89ac-418b-b679-a66d4b0ea7ff';
+
+                    const data = {
+
+                        corsOrigin: "*",
+
+                        pushMediaSettings: {
+
+                            accessPolicy: "public",
+
+                            metadata: { key1: "value1" },
+
+                            maxResolution: "1080p",
+
+                        },
+
+                    };
+
+
+
+                    const headersRequest = {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type": "application/json",
+
+                            Authorization: "Basic " + btoa(accessTokenId + ":" + secretKey),
+
+                            "X-Client-Type": "web-browser"
+
+                        },
+
+                        body: JSON.stringify(data),
+
+                    };
+
+
+
+
+
+                    const getSignedUrl = await fetch(url, headersRequest);
+
+                    const signedUrl = await getSignedUrl.json();
+
+
+
+                    // If signed URL is successfully received, proceed to upload 
+
+                    if (signedUrl.success) {
+
+                        handleUpload(fileObject, signedUrl.data.url);
+
+                    } else {
+
+                        console.error(signedUrl.data.error);
+
+                    }
+
+                } catch (error) {
+
+                    console.error(error);
+
+                }
+
+            }
+
+        };
+
+
+
+        // Function to handle file upload using the signed URL 
+
+        const handleUpload = (video, signedUrl) => {
+
+
+
+            const fileUpload = Uploader.init({
+
+                endpoint: signedUrl,
+
+                file: video,
+
+                chunkSize: 5120,
+
+            });
+
+
+
+            // Event listener for upload progress 
+
+            fileUpload.on('progress', (event) => {
+
+                const percentage = Math.round(event.detail.progress);
+
+                progressIndicator.innerText = `${percentage}%`;
+
+                progressBar.style.width = `${percentage}%`;
+
+                console.log("progress:", percentage + "%");
+
+            });
+
+
+
+            // Event listener for successful upload 
+
+            fileUpload.on('success', () => {
+
+                console.log("upload completed");
+
+            });
+
+
+
+            // Event listener for upload error 
+
+            fileUpload.on('error', (event) => {
+
+                console.log("upload error:", event?.detail?.message);
+
+            });
+
+
+
+            // Pause an upload  
+
+            // fileUpload.pause()  
+
+
+
+            // Resume an upload  
+
+            // fileUpload.resume()  
+
+
+
+            // Abort an upload  
+
+            // fileUpload.abort()  
+
+        };
+
+    </script>
+
+</body>
+
+</html>
